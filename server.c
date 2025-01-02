@@ -15,13 +15,26 @@
 #include <signal.h>
 #include <stdlib.h>
 
+#define MAX_BITS 8
 
-
+int bits_count = 0;
+char rec_char = 0;
 
 void handel_signals(int sig)
 {
-    printf("Caught signal exiting gracefully...\n");
-    exit(0);
+    
+    if (sig == SIGUSR1)
+        rec_char = rec_char << 1;
+    else if (sig == SIGUSR2)
+        rec_char = (rec_char << 1) | 1;
+    bits_count++;
+
+    if (bits_count == MAX_BITS)
+    {
+        write(1, &rec_char, 1);
+        bits_count = 0;
+        rec_char = 0;
+    }
 }
 
 
@@ -34,8 +47,7 @@ int main()
 
     while (1)
     {   
-        printf("waiting....\n");
-        sleep(1);
+        pause();
     }
     return (0);
 }

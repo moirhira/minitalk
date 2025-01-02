@@ -14,8 +14,98 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
+#include <stdlib.h>
 
-int main()
+int	ft_atoi(const char *str);
+void	send_by_char(int server_pid, char c)
 {
-    printf("%d", getpid());
+	int		i;
+	int		bit;
+
+	i = 8;
+	while (i--)
+	{
+		bit = c >> i & 1;
+		if (!bit)
+		{
+			if (kill(server_pid, SIGUSR1) == -1)
+			{
+				printf("ERR SENDING SIGNAL 1!\n");
+				exit(1);
+			}
+		}
+		else
+		{
+			if (kill(server_pid, SIGUSR2) == -1)
+			{
+				perror("ERR SENDING SIGNAL 2!\n");
+				exit(1);
+			}
+		}
+		usleep(500);
+	}
+}
+
+int main(int ac, char **av)
+{
+    int pid;
+	int i;
+	char *str;
+
+    if (ac == 3)
+    {
+        pid = ft_atoi(av[1]);
+		if (pid <= 0)
+		{
+			printf("Invalid PID!\n");
+			return (1);
+		}
+		i = 0;
+		str = av[2];
+		while (str[i])
+		{
+			send_by_char(pid,str[i]);
+			i++;
+		}
+		send_by_char(pid, '\0');
+    }
+    else
+        printf("You Must enter : PID & Message\n");
+    return (0);
+}
+
+
+
+
+
+
+
+
+
+int	ft_atoi(const char *str)
+{
+	int		sign;
+	int		res;
+	size_t	i;
+
+	if (!str)
+		return (0);
+	i = 0;
+	res = 0;
+	sign = 1;
+	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			sign = -1;
+		i++;
+	}
+	while (str[i] && str[i] >= '0' && str[i] <= '9')
+	{
+		res = res * 10 + (str[i] - 48);
+		i++;
+	}
+	return (sign * res);
 }
