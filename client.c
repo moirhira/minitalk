@@ -10,12 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
-
-#include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
+#include "includes/printf/ft_printf.h"
 
 int	ft_atoi(const char *str);
 void	send_by_char(int server_pid, char c)
@@ -31,7 +29,7 @@ void	send_by_char(int server_pid, char c)
 		{
 			if (kill(server_pid, SIGUSR1) == -1)
 			{
-				printf("ERR SENDING SIGNAL 1!\n");
+				ft_printf("ERR SENDING SIGNAL 1!\n");
 				exit(1);
 			}
 		}
@@ -39,7 +37,7 @@ void	send_by_char(int server_pid, char c)
 		{
 			if (kill(server_pid, SIGUSR2) == -1)
 			{
-				perror("ERR SENDING SIGNAL 2!\n");
+				ft_printf("ERR SENDING SIGNAL 2!\n");
 				exit(1);
 			}
 		}
@@ -58,7 +56,7 @@ int main(int ac, char **av)
         pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
-			printf("Invalid PID!\n");
+			ft_printf("Invalid PID!\n");
 			return (1);
 		}
 		i = 0;
@@ -71,7 +69,7 @@ int main(int ac, char **av)
 		send_by_char(pid, '\0');
     }
     else
-        printf("You Must enter : PID & Message\n");
+        ft_printf("You Must enter : PID & Message\n");
     return (0);
 }
 

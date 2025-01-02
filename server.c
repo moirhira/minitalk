@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
+#include "includes/printf/ft_printf.h"
 
 #define MAX_BITS 8
 
@@ -41,7 +41,7 @@ void handel_signals(int sig)
 
 int main()
 {
-    printf("Server PID: %d\n", getpid());
+    ft_printf("Server PID: %d\n", getpid());
     signal(SIGUSR1, handel_signals);
     signal(SIGUSR2, handel_signals);
 
@@ -51,4 +51,3 @@ int main()
     }
     return (0);
 }
-
