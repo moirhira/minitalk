@@ -1,19 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moirhira <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/31 21:51:54 by moirhira          #+#    #+#             */
-/*   Updated: 2024/12/31 21:51:56 by moirhira         ###   ########.fr       */
+/*   Created: 2025/01/03 20:44:54 by moirhira          #+#    #+#             */
+/*   Updated: 2025/01/03 20:44:57 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
+
+void handel_ack(int sig, siginfo_t *info, void *cntx)
+{
+    (void)info;
+    (void)cntx;
+    if (sig == SIGUSR1)
+    {
+        ft_printf("Message recieved succesfuly.\n");
+        exit(1);
+    }
+    else if (sig == SIGUSR2)
+        ft_printf("Error accured while recieving the msg !\n");
+}
 void	send_by_char(int server_pid, char c)
 {
 	int	i;
@@ -39,7 +54,7 @@ void	send_by_char(int server_pid, char c)
 				exit(1);
 			}
 		}
-		usleep(200);
+		usleep(300);
 	}
 }
 
@@ -51,12 +66,17 @@ int	main(int ac, char **av)
 
 	if (ac == 3)
 	{
+        struct sigaction	sa;
+        sa.sa_flags = SA_SIGINFO;
+	    sa.sa_sigaction = handel_ack;
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
+	    sigaction(SIGUSR1, &sa, NULL);
+	    sigaction(SIGUSR2, &sa, NULL);
 		i = 0;
 		str = av[2];
 		while (str[i])
@@ -65,6 +85,7 @@ int	main(int ac, char **av)
 			i++;
 		}
 		send_by_char(pid, '\0');
+        pause();
 	}
 	else
 		ft_printf("You Must enter : PID & Message\n");
