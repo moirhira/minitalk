@@ -16,6 +16,8 @@
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
+int g_flag = 0;
+
 
 void handel_ack(int sig, siginfo_t *info, void *cntx)
 {
@@ -27,7 +29,11 @@ void handel_ack(int sig, siginfo_t *info, void *cntx)
         exit(1);
     }
     else if (sig == SIGUSR2)
-        ft_printf("Error accured while recieving the msg !\n");
+	{
+		// ft_printf("Acknowledgment received from server.\n");
+		g_flag = 1;
+		
+	}
 }
 void	send_by_char(int server_pid, char c)
 {
@@ -54,7 +60,9 @@ void	send_by_char(int server_pid, char c)
 				exit(1);
 			}
 		}
-		usleep(300);
+		while (!g_flag)
+			usleep(0); 
+		g_flag = 0; 
 	}
 }
 
@@ -85,7 +93,6 @@ int	main(int ac, char **av)
 			i++;
 		}
 		send_by_char(pid, '\0');
-        pause();
 	}
 	else
 		ft_printf("You Must enter : PID & Message\n");

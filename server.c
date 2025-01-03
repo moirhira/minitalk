@@ -31,9 +31,14 @@ void	handel_signals(int sig, siginfo_t *info, void *context)
 	if (g_data.bits_count == MAX_BITS)
 	{
 		ft_printf("%c", g_data.rec_char);
+		if(g_data.rec_char == '\0')
+			kill(info->si_pid, SIGUSR2);
+		else
+			kill(info->si_pid, SIGUSR1);
 		g_data.bits_count = 0;
 		g_data.rec_char = 0;
 	}
+	
 }
 
 int	main(void)

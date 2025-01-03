@@ -6,7 +6,7 @@
 /*   By: moirhira <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 21:51:54 by moirhira          #+#    #+#             */
-/*   Updated: 2024/12/31 21:51:56 by moirhira         ###   ########.fr       */
+/*   Updated: 2025/01/03 20:11:45 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "includes/printf/ft_printf.h"
@@ -14,6 +14,16 @@
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
+volatile int g_flag = 0;
+
+void	handler(int sig)
+{
+	if (sig == SIGUSR1)
+		g_flag = 1;
+	else if (sig == SIGUSR2)
+		ft_printf("Your message has been sent successfully");
+}
+
 void	send_by_char(int server_pid, char c)
 {
 	int	i;
@@ -39,7 +49,10 @@ void	send_by_char(int server_pid, char c)
 				exit(1);
 			}
 		}
-		usleep(200);
+		while (!g_flag)
+			usleep(300);
+		g_flag = 0;
+		
 	}
 }
 
@@ -57,14 +70,18 @@ int	main(int ac, char **av)
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
+		signal(SIGUSR1, handler);
+		signal(SIGUSR2, handler);
 		i = 0;
 		str = av[2];
 		while (str[i])
 		{
+			
 			send_by_char(pid, str[i]);
 			i++;
 		}
 		send_by_char(pid, '\0');
+		pause();
 	}
 	else
 		ft_printf("You Must enter : PID & Message\n");
