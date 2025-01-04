@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>

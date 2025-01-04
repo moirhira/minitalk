@@ -9,7 +9,6 @@
 /*   Updated: 2025/01/02 22:15:28 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
@@ -41,14 +40,10 @@ void	handel_signals(int sig, siginfo_t *info, void *cntx)
 		ft_printf("%c", g_data.rec_char);
 		if (g_data.rec_char == '\0')
 			kill(g_data.client_pid, SIGUSR1);
-		kill(g_data.client_pid, SIGUSR2);
 		g_data.bits_count = 0;
 		g_data.rec_char = 0;
 	}
-	else
-	{
-		kill(g_data.client_pid, SIGUSR2); 
-	}
+    kill(g_data.client_pid, SIGUSR2);
 }
 
 int	main(void)
@@ -59,10 +54,11 @@ int	main(void)
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = handel_signals;
 	sigemptyset(&sa.sa_mask);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	
 	while (1)
 	{
+		sigaction(SIGUSR1, &sa, NULL);
+		sigaction(SIGUSR2, &sa, NULL);
 		pause();
 	}
 	return (0);
