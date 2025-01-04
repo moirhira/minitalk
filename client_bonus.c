@@ -15,30 +15,26 @@
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
-int g_flag = 0;
+int		g_flag = 0;
 
-
-void handel_ack(int sig, siginfo_t *info, void *cntx)
+void	handel_ack(int sig, siginfo_t *info, void *cntx)
 {
-    (void)info;
-    (void)cntx;
-    if (sig == SIGUSR1)
-    {
-        ft_printf("Message recieved succesfuly.\n");
-        exit(1);
-    }
-    else if (sig == SIGUSR2)
+	(void)info;
+	(void)cntx;
+	if (sig == SIGUSR1)
 	{
-		// ft_printf("Acknowledgment received from server.\n");
+		ft_printf("Message recieved succesfuly.\n");
+		exit(1);
+	}
+	else if (sig == SIGUSR2)
+	{
 		g_flag = 1;
-		
 	}
 }
+
 void	send_by_char(int server_pid, char c)
 {
-	int	i;
-	int	bit;
-
+	int (i), (bit);
 	i = 8;
 	while (i--)
 	{
@@ -60,37 +56,33 @@ void	send_by_char(int server_pid, char c)
 			}
 		}
 		while (!g_flag)
-			usleep(0); 
-		g_flag = 0; 
+			usleep(0);
+		g_flag = 0;
 	}
 }
 
 int	main(int ac, char **av)
 {
-	int		pid;
-	int		i;
-	char	*str;
+	struct sigaction	sa;
+	char				*str;
 
+	int (pid), (i);
 	if (ac == 3)
 	{
-        struct sigaction	sa;
-        sa.sa_flags = SA_SIGINFO;
-	    sa.sa_sigaction = handel_ack;
+		sa.sa_flags = SA_SIGINFO;
+		sa.sa_sigaction = handel_ack;
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
-	    sigaction(SIGUSR1, &sa, NULL);
-	    sigaction(SIGUSR2, &sa, NULL);
+		sigaction(SIGUSR1, &sa, NULL);
+		sigaction(SIGUSR2, &sa, NULL);
 		i = 0;
 		str = av[2];
 		while (str[i])
-		{
-			send_by_char(pid, str[i]);
-			i++;
-		}
+			send_by_char(pid, str[i++]);
 		send_by_char(pid, '\0');
 	}
 	else

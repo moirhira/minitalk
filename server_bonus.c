@@ -9,22 +9,14 @@
 /*   Updated: 2025/01/02 22:15:28 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "file.h"
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
-#include "file.h"
 
 #define MAX_BITS 8
 
 t_signal_data	g_data = {0, 0, 0};
-
-void	send_ack(int clt_pid, int ack_type)
-{
-	if (ack_type == 1)
-		kill(clt_pid, SIGUSR1);
-	else
-		kill(clt_pid, SIGUSR2);
-}
 
 void	handel_signals(int sig, siginfo_t *info, void *cntx)
 {
@@ -43,7 +35,7 @@ void	handel_signals(int sig, siginfo_t *info, void *cntx)
 		g_data.bits_count = 0;
 		g_data.rec_char = 0;
 	}
-    kill(g_data.client_pid, SIGUSR2);
+	kill(g_data.client_pid, SIGUSR2);
 }
 
 int	main(void)
@@ -54,7 +46,6 @@ int	main(void)
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = handel_signals;
 	sigemptyset(&sa.sa_mask);
-	
 	while (1)
 	{
 		sigaction(SIGUSR1, &sa, NULL);

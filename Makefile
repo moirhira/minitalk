@@ -6,8 +6,12 @@ all:
 	make -C $(PRINTF_DIR)
 	$(CC) $(CFLAGS) server.c -L$(PRINTF_DIR) -lftprintf -o server
 	$(CC) $(CFLAGS) client.c -L$(PRINTF_DIR) -lftprintf -o client
+
+make_bonus:
+	make -C $(PRINTF_DIR)
 	$(CC) $(CFLAGS) server_bonus.c -L$(PRINTF_DIR) -lftprintf -o server_bonus
 	$(CC) $(CFLAGS) client_bonus.c -L$(PRINTF_DIR) -lftprintf -o client_bonus
+
 
 clean:
 	make clean -C $(PRINTF_DIR)

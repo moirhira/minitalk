@@ -9,26 +9,27 @@
 /*   Updated: 2025/01/03 20:11:45 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
-volatile int g_flag = 0;
+int		g_flag = 0;
 
-void	handler(int sig)
+void	handel_ack(int sig, siginfo_t *info, void *cntx)
 {
+	(void)info;
+	(void)cntx;
 	if (sig == SIGUSR1)
+	{
 		g_flag = 1;
-	else if (sig == SIGUSR2)
-		ft_printf("Your message has been sent successfully");
+	}
 }
 
 void	send_by_char(int server_pid, char c)
 {
-	int	i;
-	int	bit;
-
+	int (i), (bit);
 	i = 8;
 	while (i--)
 	{
@@ -50,38 +51,34 @@ void	send_by_char(int server_pid, char c)
 			}
 		}
 		while (!g_flag)
-			usleep(300);
+			usleep(0);
 		g_flag = 0;
-		
 	}
 }
 
 int	main(int ac, char **av)
 {
-	int		pid;
-	int		i;
-	char	*str;
+	int					pid;
+	int					i;
+	char				*str;
+	struct sigaction	sa;
 
 	if (ac == 3)
 	{
+		sa.sa_flags = SA_SIGINFO;
+		sa.sa_sigaction = handel_ack;
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
-		signal(SIGUSR1, handler);
-		signal(SIGUSR2, handler);
+		sigaction(SIGUSR1, &sa, NULL);
 		i = 0;
 		str = av[2];
 		while (str[i])
-		{
-			
-			send_by_char(pid, str[i]);
-			i++;
-		}
+			send_by_char(pid, str[i++]);
 		send_by_char(pid, '\0');
-		pause();
 	}
 	else
 		ft_printf("You Must enter : PID & Message\n");
