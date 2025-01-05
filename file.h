@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <signal.h>
 typedef struct s_signal_data
 {
 	int			bits_count;
 	char		rec_char;
-	int			client_pid;
+	pid_t		client_pid;
 }				t_signal_data;

@@ -6,19 +6,28 @@
 /*   By: moirhira <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 21:51:54 by moirhira          #+#    #+#             */
-/*   Updated: 2024/12/31 21:51:56 by moirhira         ###   ########.fr       */
+/*   Updated: 2025/01/03 20:11:45 by moirhira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
+int		g_flag = 0;
+
+void	handel_ack(int sig)
+{
+	if (sig == SIGUSR1)
+	{
+		g_flag = 1;
+	}
+}
+
 void	send_by_char(int server_pid, char c)
 {
-	int	i;
-	int	bit;
-
+	int (i), (bit);
 	i = 8;
 	while (i--)
 	{
@@ -39,31 +48,32 @@ void	send_by_char(int server_pid, char c)
 				exit(1);
 			}
 		}
-		usleep(200);
+		while (!g_flag)
+			usleep(0);
+		g_flag = 0;
 	}
 }
 
 int	main(int ac, char **av)
 {
-	int		pid;
-	int		i;
-	char	*str;
+	pid_t				pid;
+	int					i;
+	struct sigaction	sa;
 
 	if (ac == 3)
 	{
+		sa.sa_flags = SA_SIGINFO;
+		sa.sa_handler = handel_ack;
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
+		sigaction(SIGUSR1, &sa, NULL);
 		i = 0;
-		str = av[2];
-		while (str[i])
-		{
-			send_by_char(pid, str[i]);
-			i++;
-		}
+		while (av[2][i])
+			send_by_char(pid, av[2][i++]);
 		send_by_char(pid, '\0');
 	}
 	else

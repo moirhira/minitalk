@@ -10,30 +10,29 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "includes/printf/ft_printf.h"
 #include <signal.h>
 #include <stdlib.h>
 
 int		ft_atoi(const char *str);
+int		g_flag = 0;
 
-void handel_ack(int sig, siginfo_t *info, void *cntx)
+void	handel_ack(int sig)
 {
-    (void)info;
-    (void)cntx;
-    if (sig == SIGUSR1)
-    {
-        ft_printf("Message recieved succesfuly.\n");
-        exit(1);
-    }
-    else if (sig == SIGUSR2)
-        ft_printf("Error accured while recieving the msg !\n");
+	if (sig == SIGUSR1)
+	{
+		ft_printf("Message recieved succesfuly.\n");
+		exit(1);
+	}
+	else if (sig == SIGUSR2)
+	{
+		g_flag = 1;
+	}
 }
-void	send_by_char(int server_pid, char c)
-{
-	int	i;
-	int	bit;
 
+void	send_by_char(pid_t server_pid, char c)
+{
+	int (i), (bit);
 	i = 8;
 	while (i--)
 	{
@@ -54,38 +53,34 @@ void	send_by_char(int server_pid, char c)
 				exit(1);
 			}
 		}
-		usleep(300);
+		while (!g_flag)
+			usleep(0);
+		g_flag = 0;
 	}
 }
 
 int	main(int ac, char **av)
 {
-	int		pid;
-	int		i;
-	char	*str;
+	pid_t				pid;
+	int					i;
+	struct sigaction	sa;
 
 	if (ac == 3)
 	{
-        struct sigaction	sa;
-        sa.sa_flags = SA_SIGINFO;
-	    sa.sa_sigaction = handel_ack;
+		sa.sa_flags = SA_SIGINFO;
+		sa.sa_handler = handel_ack;
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
 			ft_printf("Invalid PID!\n");
 			return (1);
 		}
-	    sigaction(SIGUSR1, &sa, NULL);
-	    sigaction(SIGUSR2, &sa, NULL);
+		sigaction(SIGUSR1, &sa, NULL);
+		sigaction(SIGUSR2, &sa, NULL);
 		i = 0;
-		str = av[2];
-		while (str[i])
-		{
-			send_by_char(pid, str[i]);
-			i++;
-		}
+		while (av[2][i])
+			send_by_char(pid, av[2][i++]);
 		send_by_char(pid, '\0');
-        pause();
 	}
 	else
 		ft_printf("You Must enter : PID & Message\n");
